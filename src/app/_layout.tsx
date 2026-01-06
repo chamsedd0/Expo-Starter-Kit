@@ -1,6 +1,6 @@
 import React from 'react';
 import "../global.css";
-import { Slot, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import { NetworkProvider } from '../app/contexts/NetworkContext';
 import { ThemeProvider } from '../app/contexts/ThemeContext';
 import { I18nProvider } from '../app/contexts/I18nContext';
@@ -23,7 +23,9 @@ export default function Layout() {
               },
             }}
           >
+            <Stack.Screen name="login" />
             <Stack.Screen name="index" />
+            <Stack.Screen name="(tabs)" />
           </Stack>
         </ThemeProvider>
       </NetworkProvider>

@@ -1,16 +1,19 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { HomeIcon, UserIcon, SettingsIcon } from 'lucide-react-native';
+import { HomeIcon, UserIcon, SettingsIcon, FlaskConicalIcon } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { SettingsScreen } from '../screens/settings/SettingsScreen';
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
+import TestScreen from '../screens/TestScreen';
 import { useTheme } from '../contexts/ThemeContext';
 
 type BottomTabParamList = {
   Home: undefined;
+  Test: undefined;
   Profile: undefined;
-  Settings: { 
-    bottomMenuEnabled?: boolean; 
+  Settings: {
+    bottomMenuEnabled?: boolean;
     onBottomMenuToggle?: (value: boolean) => void;
   };
 };
@@ -20,12 +23,13 @@ interface BottomTabNavigationProps {
   onBottomMenuToggle: (value: boolean) => void;
 }
 
-export function BottomTabNavigation({ 
-  bottomMenuEnabled, 
-  onBottomMenuToggle 
+export function BottomTabNavigation({
+  bottomMenuEnabled,
+  onBottomMenuToggle
 }: BottomTabNavigationProps) {
   const Tab = createBottomTabNavigator<BottomTabParamList>();
   const { isDarkMode, accentColor } = useTheme();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tab.Navigator
@@ -35,6 +39,8 @@ export function BottomTabNavigation({
           switch (route.name) {
             case 'Home':
               return <HomeIcon color={color} size={size} />;
+            case 'Test':
+              return <FlaskConicalIcon color={color} size={size} />;
             case 'Profile':
               return <UserIcon color={color} size={size} />;
             case 'Settings':
@@ -49,8 +55,8 @@ export function BottomTabNavigation({
           backgroundColor: isDarkMode ? '#1F2937' : 'white',
           borderTopWidth: 1,
           borderTopColor: isDarkMode ? '#374151' : '#E5E7EB',
-          height: 90,
-          paddingBottom: 10,
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom,
           paddingTop: 10,
           position: 'absolute',
           bottom: 0,
@@ -63,33 +69,41 @@ export function BottomTabNavigation({
         },
       })}
     >
-      <Tab.Screen 
-        name="Home" 
-        component={HomeScreen} 
-        options={{ 
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
           title: 'Home',
-          headerShown: false 
-        }} 
-      />
-      <Tab.Screen 
-        name="Profile" 
-        component={ProfileScreen} 
-        options={{ 
-          title: 'Profile',
-          headerShown: false 
-        }} 
-      />
-      <Tab.Screen 
-        name="Settings" 
-        component={SettingsScreen} 
-        initialParams={{ 
-          bottomMenuEnabled, 
-          onBottomMenuToggle 
+          headerShown: false
         }}
-        options={{ 
+      />
+      <Tab.Screen
+        name="Test"
+        component={TestScreen}
+        options={{
+          title: 'Test',
+          headerShown: false
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          title: 'Profile',
+          headerShown: false
+        }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
+        initialParams={{
+          bottomMenuEnabled,
+          onBottomMenuToggle
+        }}
+        options={{
           title: 'Settings',
           headerShown: false,
-        }} 
+        }}
       />
     </Tab.Navigator>
   );

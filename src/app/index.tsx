@@ -1,55 +1,23 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { View, StyleSheet, Platform } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { BottomTabNavigation } from "./components/BottomTabNavigation";
-import { DebugBottomNavigation } from "./components/primitives/debug/DebugBottomNavigation";
-import { ThemeProvider } from './contexts/ThemeContext';
+import React, { useEffect } from "react";
+import { View, ActivityIndicator } from "react-native";
+import { router } from "expo-router";
+import { useAuthStore } from '../store/useStore';
 
-export default function Page() {
-  const { bottom } = useSafeAreaInsets();
-  const [bottomMenuEnabled, setBottomMenuEnabled] = useState(false);
+export default function Index() {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   useEffect(() => {
-  }, [bottomMenuEnabled]);
-  
-  const handleBottomMenuToggle = useCallback((value: boolean) => {
-    setBottomMenuEnabled(value);
-  }, []);
-  
+    // Check authentication and redirect
+    if (isAuthenticated) {
+      router.replace('/(tabs)');
+    } else {
+      router.replace('/login');
+    }
+  }, [isAuthenticated]);
+
   return (
-    <ThemeProvider>
-      <View style={styles.container}>
-        <BottomTabNavigation 
-          bottomMenuEnabled={bottomMenuEnabled}
-          onBottomMenuToggle={handleBottomMenuToggle}
-        />
-        {bottomMenuEnabled && (
-          <View 
-            style={[
-              styles.debugNavigation, 
-              { 
-                bottom: Platform.OS === 'ios' ? bottom : 0,
-                height: 120 
-              }
-            ]}
-          >
-            <DebugBottomNavigation />
-          </View>
-        )}
-      </View>
-    </ThemeProvider>
+    <View className="flex-1 bg-background items-center justify-center">
+      <ActivityIndicator size="large" />
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  debugNavigation: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    zIndex: 1000,
-    backgroundColor: 'transparent',
-  },
-});
