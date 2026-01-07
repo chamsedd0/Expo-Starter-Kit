@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuthStore } from '../../store/useStore';
 import { apiClient } from '../../api/client';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useTheme } from '../contexts/ThemeContext';
+import { GradientCard } from '../components/ui/GradientCard';
+import { GlassInput } from '../components/ui/GlassInput';
+import { StyledButton } from '../components/ui/StyledButton';
+import { DollarSign, Tag, Calendar, FileText, ShoppingBag } from 'lucide-react-native';
 
 interface Product {
     id: number;
@@ -24,6 +30,7 @@ interface Expense {
 
 export default function ExpensesScreen() {
     const employee = useAuthStore((state) => state.employee);
+    const { isDarkMode, accentColor } = useTheme();
     const [products, setProducts] = useState<Product[]>([]);
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [loading, setLoading] = useState(false);
@@ -98,150 +105,202 @@ export default function ExpensesScreen() {
 
     const getStateColor = (state: string) => {
         switch (state) {
-            case 'approved': return 'text-green-600';
-            case 'done': return 'text-blue-600';
-            case 'refused': return 'text-red-600';
-            default: return 'text-yellow-600';
+            case 'approved': return 'text-emerald-500';
+            case 'done': return 'text-blue-500';
+            case 'refused': return 'text-red-500';
+            default: return 'text-yellow-500';
         }
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-background">
-            <ScrollView className="flex-1 p-4">
-                {/* Submit Form */}
-                <View className="bg-card rounded-lg p-6 mb-4">
-                    <Text className="text-2xl font-bold text-foreground mb-4">Submit Expense</Text>
+        <LinearGradient
+            colors={isDarkMode ? ['#0F172A', '#1E293B'] : ['#F8FAFC', '#F1F5F9']}
+            style={{ flex: 1 }}
+        >
+            <SafeAreaView edges={['top']} style={{ flex: 1 }}>
+                <ScrollView
+                    className="flex-1 p-4"
+                    contentContainerStyle={{ paddingBottom: 150, paddingTop: 20 }}
+                    showsVerticalScrollIndicator={false}
+                >
+                    <View className="mb-6">
+                        <Text className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                            Expenses
+                        </Text>
+                        <Text className={`${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                            Track and submit your expenses
+                        </Text>
+                    </View>
 
-                    <View className="space-y-4">
-                        <View>
-                            <Text className="text-sm font-medium text-foreground mb-2">Expense Category</Text>
-                            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2">
-                                {products.map((product) => (
-                                    <TouchableOpacity
-                                        key={product.id}
-                                        className={`px-4 py-2 rounded-lg border ${selectedProductId === product.id
-                                            ? 'bg-primary border-primary'
-                                            : 'bg-background border-border'
-                                            }`}
-                                        onPress={() => setSelectedProductId(product.id)}
-                                    >
-                                        <Text
-                                            className={
-                                                selectedProductId === product.id
-                                                    ? 'text-primary-foreground font-semibold'
-                                                    : 'text-foreground'
-                                            }
+                    {/* Submit Form */}
+                    <GradientCard variant="surface" className="mb-6">
+                        <Text className={`text-xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                            New Expense
+                        </Text>
+
+                        <View className="space-y-4">
+                            <View>
+                                <Text className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                                    Expense Category
+                                </Text>
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2">
+                                    {products.map((product) => (
+                                        <TouchableOpacity
+                                            key={product.id}
+                                            style={{
+                                                backgroundColor: selectedProductId === product.id ? accentColor : (isDarkMode ? '#334155' : '#F1F5F9'),
+                                                paddingHorizontal: 16,
+                                                paddingVertical: 8,
+                                                borderRadius: 20,
+                                            }}
+                                            onPress={() => setSelectedProductId(product.id)}
                                         >
-                                            {product.name}
-                                        </Text>
-                                    </TouchableOpacity>
-                                ))}
-                            </ScrollView>
-                        </View>
+                                            <Text
+                                                style={{
+                                                    color: selectedProductId === product.id ? 'white' : (isDarkMode ? '#E2E8F0' : '#475569'),
+                                                    fontWeight: '600'
+                                                }}
+                                            >
+                                                {product.name}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </ScrollView>
+                            </View>
 
-                        <View>
-                            <Text className="text-sm font-medium text-foreground mb-2">Description *</Text>
-                            <TextInput
-                                className="bg-background border border-border rounded-lg px-4 py-3 text-foreground"
+                            <GlassInput
+                                label="Description *"
                                 placeholder="What is this expense for?"
-                                placeholderTextColor="#888"
                                 value={description}
                                 onChangeText={setDescription}
                                 multiline
                                 numberOfLines={2}
+                                icon={<FileText size={20} color={isDarkMode ? '#94A3B8' : '#64748B'} />}
+                                style={{ height: 60, textAlignVertical: 'top' }}
+                            />
+
+                            <View className="flex-row gap-3">
+                                <View className="flex-1">
+                                    <GlassInput
+                                        label="Amount *"
+                                        placeholder="0.00"
+                                        value={amount}
+                                        onChangeText={setAmount}
+                                        keyboardType="numeric"
+                                        icon={<DollarSign size={18} color={isDarkMode ? '#94A3B8' : '#64748B'} />}
+                                    />
+                                </View>
+                                <View className="flex-1">
+                                    <GlassInput
+                                        label="Quantity"
+                                        placeholder="1"
+                                        value={quantity}
+                                        onChangeText={setQuantity}
+                                        keyboardType="numeric"
+                                        icon={<Tag size={18} color={isDarkMode ? '#94A3B8' : '#64748B'} />}
+                                    />
+                                </View>
+                            </View>
+
+                            <View>
+                                <Text className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                                    Date
+                                </Text>
+                                <TouchableOpacity
+                                    onPress={() => setShowDatePicker(true)}
+                                    style={{
+                                        backgroundColor: isDarkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.8)',
+                                        borderWidth: 1,
+                                        borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                                        borderRadius: 12,
+                                        padding: 16,
+                                        flexDirection: 'row',
+                                        alignItems: 'center'
+                                    }}
+                                >
+                                    <Calendar size={20} color={isDarkMode ? '#94A3B8' : '#64748B'} style={{ marginRight: 8 }} />
+                                    <Text className={isDarkMode ? 'text-white' : 'text-slate-900'}>
+                                        {date.toLocaleDateString()}
+                                    </Text>
+                                </TouchableOpacity>
+                                {showDatePicker && (
+                                    <DateTimePicker
+                                        value={date}
+                                        mode="date"
+                                        onChange={(event, selectedDate) => {
+                                            setShowDatePicker(false);
+                                            if (selectedDate) setDate(selectedDate);
+                                        }}
+                                    />
+                                )}
+                            </View>
+
+                            <StyledButton
+                                title="Submit Expense"
+                                onPress={handleSubmit}
+                                loading={submitting}
                             />
                         </View>
+                    </GradientCard>
 
-                        <View className="flex-row gap-3">
-                            <View className="flex-1">
-                                <Text className="text-sm font-medium text-foreground mb-2">Amount *</Text>
-                                <TextInput
-                                    className="bg-background border border-border rounded-lg px-4 py-3 text-foreground"
-                                    placeholder="0.00"
-                                    placeholderTextColor="#888"
-                                    value={amount}
-                                    onChangeText={setAmount}
-                                    keyboardType="numeric"
-                                />
-                            </View>
-                            <View className="flex-1">
-                                <Text className="text-sm font-medium text-foreground mb-2">Quantity</Text>
-                                <TextInput
-                                    className="bg-background border border-border rounded-lg px-4 py-3 text-foreground"
-                                    placeholder="1"
-                                    placeholderTextColor="#888"
-                                    value={quantity}
-                                    onChangeText={setQuantity}
-                                    keyboardType="numeric"
-                                />
-                            </View>
-                        </View>
-
-                        <View>
-                            <Text className="text-sm font-medium text-foreground mb-2">Date</Text>
-                            <TouchableOpacity
-                                className="bg-background border border-border rounded-lg px-4 py-3"
-                                onPress={() => setShowDatePicker(true)}
-                            >
-                                <Text className="text-foreground">{date.toLocaleDateString()}</Text>
-                            </TouchableOpacity>
-                            {showDatePicker && (
-                                <DateTimePicker
-                                    value={date}
-                                    mode="date"
-                                    onChange={(event, selectedDate) => {
-                                        setShowDatePicker(false);
-                                        if (selectedDate) setDate(selectedDate);
-                                    }}
-                                />
-                            )}
-                        </View>
-
-                        <TouchableOpacity
-                            className={`py-3 px-6 rounded-lg ${submitting ? 'bg-muted' : 'bg-primary'}`}
-                            onPress={handleSubmit}
-                            disabled={submitting}
-                        >
-                            {submitting ? (
-                                <ActivityIndicator color="white" />
-                            ) : (
-                                <Text className="text-primary-foreground font-semibold text-center">
-                                    Submit Expense
-                                </Text>
-                            )}
-                        </TouchableOpacity>
-                    </View>
-                </View>
-
-                {/* Previous Expenses */}
-                <View className="bg-card rounded-lg p-6">
-                    <Text className="text-xl font-bold text-foreground mb-4">My Expenses</Text>
+                    {/* Previous Expenses */}
+                    <Text className={`text-xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                        My Expenses
+                    </Text>
                     {loading ? (
-                        <ActivityIndicator size="large" />
+                        <ActivityIndicator size="large" color={accentColor} />
                     ) : expenses.length === 0 ? (
-                        <Text className="text-muted-foreground text-center py-4">No expenses yet</Text>
+                        <View className="items-center py-8">
+                            <ShoppingBag size={48} color={isDarkMode ? '#334155' : '#CBD5E1'} />
+                            <Text className={`mt-4 ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+                                No expenses yet
+                            </Text>
+                        </View>
                     ) : (
-                        expenses.map((expense) => (
-                            <View key={expense.id} className="bg-background rounded-lg p-4 mb-3">
-                                <Text className="text-foreground font-semibold">{expense.name}</Text>
-                                <Text className="text-sm text-muted-foreground">
-                                    {expense.product_id[1]}
-                                </Text>
-                                <Text className="text-sm text-muted-foreground">
-                                    Date: {new Date(expense.date).toLocaleDateString()}
-                                </Text>
-                                <Text className="text-sm text-muted-foreground">
-                                    Qty: {expense.quantity} × ${expense.price_unit.toFixed(2)} = $
-                                    {expense.total_amount.toFixed(2)}
-                                </Text>
-                                <Text className={`text-sm font-semibold mt-1 ${getStateColor(expense.state)}`}>
-                                    {expense.state.toUpperCase()}
-                                </Text>
-                            </View>
-                        ))
+                        <View className="space-y-3">
+                            {expenses.map((expense) => (
+                                <GradientCard key={expense.id} variant="secondary" className="mb-3">
+                                    <View className="flex-row justify-between items-start mb-2">
+                                        <View style={{ flex: 1, marginRight: 8 }}>
+                                            <Text className={`font-bold text-lg ${isDarkMode ? 'text-white' : 'text-slate-900'}`} numberOfLines={1}>
+                                                {expense.name}
+                                            </Text>
+                                            <Text className={`${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                                                {expense.product_id[1]}
+                                            </Text>
+                                        </View>
+                                        <View className="items-end">
+                                            <Text className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                                                ${expense.total_amount.toFixed(2)}
+                                            </Text>
+                                            <View className={`px-2 py-0.5 rounded-full mt-1 ${expense.state === 'approved' || expense.state === 'done' ? 'bg-emerald-500/10' :
+                                                expense.state === 'refused' ? 'bg-red-500/10' :
+                                                    'bg-yellow-500/10'
+                                                }`}>
+                                                <Text className={`text-[10px] font-bold ${getStateColor(expense.state)}`}>
+                                                    {expense.state.toUpperCase()}
+                                                </Text>
+                                            </View>
+                                        </View>
+                                    </View>
+
+                                    <View className="flex-row items-center justify-between mt-2 pt-2 border-t border-gray-200/10">
+                                        <View className="flex-row items-center">
+                                            <Calendar size={14} color={isDarkMode ? '#94A3B8' : '#64748B'} style={{ marginRight: 4 }} />
+                                            <Text className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                                                {new Date(expense.date).toLocaleDateString()}
+                                            </Text>
+                                        </View>
+                                        <Text className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                                            Qty: {expense.quantity}
+                                        </Text>
+                                    </View>
+                                </GradientCard>
+                            ))}
+                        </View>
                     )}
-                </View>
-            </ScrollView>
-        </SafeAreaView>
+                </ScrollView>
+            </SafeAreaView>
+        </LinearGradient>
     );
 }

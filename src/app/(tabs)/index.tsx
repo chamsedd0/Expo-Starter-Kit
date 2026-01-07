@@ -1,5 +1,5 @@
-import { Redirect } from 'expo-router';
+import HomeScreen from '../screens/home/HomeScreen';
 
 export default function TabsIndex() {
-    return <Redirect href="/(tabs)/time-off" />;
+    return <HomeScreen />;
 }

@@ -1,9 +1,9 @@
-import React, { 
-  createContext, 
-  useState, 
-  useContext, 
-  ReactNode, 
-  useEffect 
+import React, {
+  createContext,
+  useState,
+  useContext,
+  ReactNode,
+  useEffect
 } from 'react';
 import { Alert, useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -18,29 +18,51 @@ interface ThemeContextType {
   customColors: string[];
 }
 
-// Predefined accent color palettes
+// Premium accent color palettes
 export const ACCENT_COLORS = {
-  BLUE: '#3B82F6',
-  GREEN: '#10B981',
-  PURPLE: '#8B5CF6',
-  PINK: '#EC4899',
-  ORANGE: '#F97316'
+  PRIMARY: '#2563EB',    // Royal Blue (Trust, Professionalism)
+  SUCCESS: '#059669',    // Emerald (Positive Action, Growth)
+  WARNING: '#D97706',    // Amber (Caution, Pending)
+  DANGER: '#DC2626',     // Red (Destructive, Errors)
+  NEUTRAL: '#475569',    // Slate (Subtle, Backgrounds)
+  PURPLE: '#7C3AED',     // Violet (Creative, Special Actions)
+};
+
+export const THEME_COLORS = {
+  dark: {
+    background: '#0F172A', // Slate 900
+    surface: '#1E293B',    // Slate 800
+    surfaceHighlight: '#334155', // Slate 700
+    text: '#F8FAFC',       // Slate 50
+    textSecondary: '#94A3B8', // Slate 400
+    border: '#334155',     // Slate 700
+    inputBackground: '#1E293B',
+  },
+  light: {
+    background: '#F1F5F9', // Slate 100
+    surface: '#FFFFFF',    // White
+    surfaceHighlight: '#F8FAFC', // Slate 50
+    text: '#0F172A',       // Slate 900
+    textSecondary: '#64748B', // Slate 500
+    border: '#E2E8F0',     // Slate 200
+    inputBackground: '#F8FAFC',
+  }
 };
 
 const ThemeContext = createContext<ThemeContextType>({
   isDarkMode: false,
-  toggleTheme: () => {},
-  accentColor: ACCENT_COLORS.BLUE,
-  setAccentColor: () => {},
+  toggleTheme: () => { },
+  accentColor: ACCENT_COLORS.PRIMARY,
+  setAccentColor: () => { },
   ACCENT_COLORS: ACCENT_COLORS,
-  addCustomColor: () => {},
+  addCustomColor: () => { },
   customColors: []
 });
 
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const colorScheme = useColorScheme();
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
-  const [accentColor, setAccentColor] = useState<string>(ACCENT_COLORS.BLUE);
+  const [accentColor, setAccentColor] = useState<string>(ACCENT_COLORS.PRIMARY);
   const [customColors, setCustomColors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -109,10 +131,10 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   }
 
   return (
-    <ThemeContext.Provider value={{ 
-      isDarkMode, 
-      toggleTheme, 
-      accentColor, 
+    <ThemeContext.Provider value={{
+      isDarkMode,
+      toggleTheme,
+      accentColor,
       setAccentColor,
       ACCENT_COLORS: combinedAccentColors,
       addCustomColor,
@@ -129,6 +151,6 @@ export const useTheme = () => {
     throw new Error('useTheme must be used within a ThemeProvider');
   }
   return context;
-}; 
+};
 
 export default ThemeProvider;
